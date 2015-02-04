@@ -1,5 +1,6 @@
 public class Percolation {
     private WeightedQuickUnionUF uf;
+    private WeightedQuickUnionUF isFullUF;
     private boolean[][] open;
     private boolean[][] full;
     private int nValue;
@@ -13,6 +14,7 @@ public class Percolation {
         }
         
         uf = new WeightedQuickUnionUF(N * N + 2);
+        isFullUF = new WeightedQuickUnionUF(N * N + 1);
                
         open = new boolean[N][N];
         nValue = N;
@@ -26,7 +28,10 @@ public class Percolation {
 
         open[i - 1][j - 1] = true;
         
-        if (i == 1) uf.union(0, getNodeValue(i, j));
+        if (i == 1)  {
+            uf.union(0, getNodeValue(i, j));
+            isFullUF.union(0, getNodeValue(i, j));
+        }
         if (i == nValue) uf.union(nValue * nValue + 1, getNodeValue(i, j));
         
         unionAdjacentSites(i, j);  
@@ -35,15 +40,19 @@ public class Percolation {
     private void unionAdjacentSites(int i, int j) {
         if (!isOutOfBound(i - 1, j) && open[i - 2][j - 1]) {
             uf.union(getNodeValue(i - 1, j), getNodeValue(i, j));
+            isFullUF.union(getNodeValue(i - 1, j), getNodeValue(i, j));
         }
         if (!isOutOfBound(i + 1, j) && open[i][j - 1]) {
             uf.union(getNodeValue(i + 1, j), getNodeValue(i, j));
+            isFullUF.union(getNodeValue(i + 1, j), getNodeValue(i, j));
         }
         if (!isOutOfBound(i, j - 1) && open[i - 1][j - 2]) {
             uf.union(getNodeValue(i, j - 1), getNodeValue(i, j));
+            isFullUF.union(getNodeValue(i, j - 1), getNodeValue(i, j));
         }
         if (!isOutOfBound(i, j + 1) && open[i - 1][j]) {
             uf.union(getNodeValue(i, j + 1), getNodeValue(i, j));
+            isFullUF.union(getNodeValue(i, j + 1), getNodeValue(i, j));
         }
     }
     
@@ -60,7 +69,7 @@ public class Percolation {
      */
     public boolean isFull(int i, int j) {
         catchOutOfBoundException(i, j);
-        return uf.connected(0, getNodeValue(i, j));
+        return isFullUF.connected(0, getNodeValue(i, j));
     }
     /**
      * does the system percolate?
