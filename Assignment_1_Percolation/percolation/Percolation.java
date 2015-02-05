@@ -30,29 +30,33 @@ public class Percolation {
         if (i == 1)  {
             uf.union(0, getNodeValue(i, j));
         }
+        if (i == nValue) rootConnectBottom[uf.find(getNodeValue(i, j))] = true;
         
         unionAdjacentSites(i, j);
-        if (i == nValue) rootConnectBottom[uf.find(getNodeValue(i, j))] = true;
     }
     
     private void unionAdjacentSites(int i, int j) {
         if (!isOutOfBound(i - 1, j) && open[i - 2][j - 1]) {
-            boolean flag = rootConnectBottom[uf.find(getNodeValue(i - 1, j))];
+            boolean flag = rootConnectBottom[uf.find(getNodeValue(i - 1, j))]
+                || rootConnectBottom[uf.find(getNodeValue(i , j))];
             uf.union(getNodeValue(i - 1, j), getNodeValue(i, j));
             if (flag) rootConnectBottom[uf.find(getNodeValue(i - 1, j))] = true;
         }
         if (!isOutOfBound(i + 1, j) && open[i][j - 1]) {
-            boolean flag = rootConnectBottom[uf.find(getNodeValue(i + 1, j))];
+            boolean flag = rootConnectBottom[uf.find(getNodeValue(i + 1, j))]
+                || rootConnectBottom[uf.find(getNodeValue(i, j))];
             uf.union(getNodeValue(i + 1, j), getNodeValue(i, j));
             if (flag) rootConnectBottom[uf.find(getNodeValue(i + 1, j))] = true;
         }
         if (!isOutOfBound(i, j - 1) && open[i - 1][j - 2]) {
-            boolean flag = rootConnectBottom[uf.find(getNodeValue(i, j - 1))];
+            boolean flag = rootConnectBottom[uf.find(getNodeValue(i, j - 1))]
+                || rootConnectBottom[uf.find(getNodeValue(i, j))];
             uf.union(getNodeValue(i, j - 1), getNodeValue(i, j));
             if (flag) rootConnectBottom[uf.find(getNodeValue(i, j - 1))] = true;
         }
         if (!isOutOfBound(i, j + 1) && open[i - 1][j]) {
-            boolean flag = rootConnectBottom[uf.find(getNodeValue(i, j + 1))];
+            boolean flag = rootConnectBottom[uf.find(getNodeValue(i, j + 1))]
+                || rootConnectBottom[uf.find(getNodeValue(i, j))];
             uf.union(getNodeValue(i, j + 1), getNodeValue(i, j));
             if (flag) rootConnectBottom[uf.find(getNodeValue(i, j + 1))] = true;
         }
