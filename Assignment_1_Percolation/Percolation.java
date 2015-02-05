@@ -27,9 +27,7 @@ public class Percolation {
 
         open[i - 1][j - 1] = true;
         
-        if (i == 1)  {
-            uf.union(0, getNodeValue(i, j));
-        }
+        if (i == 1) uf.union(0, getNodeValue(i, j));
         if (i == nValue) rootConnectBottom[uf.find(getNodeValue(i, j))] = true;
         
         unionAdjacentSites(i, j);
