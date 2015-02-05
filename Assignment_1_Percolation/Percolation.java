@@ -1,7 +1,7 @@
 public class Percolation {
     private WeightedQuickUnionUF uf;
-    private WeightedQuickUnionUF isFullUF;
     private boolean[][] open;
+    private boolean[] rootConnectBottom;
     private int nValue;
     
     /**
@@ -12,10 +12,10 @@ public class Percolation {
             throw new IllegalArgumentException("N should be larger than 0!");
         }
         
-        uf = new WeightedQuickUnionUF(N * N + 2);
-        isFullUF = new WeightedQuickUnionUF(N * N + 1);
+        uf = new WeightedQuickUnionUF(N * N + 1);
                
         open = new boolean[N][N];
+        rootConnectBottom = new boolean[N * N + 1];
         nValue = N;
     }
     
@@ -29,29 +29,32 @@ public class Percolation {
         
         if (i == 1)  {
             uf.union(0, getNodeValue(i, j));
-            isFullUF.union(0, getNodeValue(i, j));
         }
-        if (i == nValue) uf.union(nValue * nValue + 1, getNodeValue(i, j));
         
-        unionAdjacentSites(i, j);  
+        unionAdjacentSites(i, j);
+        if (i == nValue) rootConnectBottom[uf.find(getNodeValue(i, j))] = true;
     }
     
     private void unionAdjacentSites(int i, int j) {
         if (!isOutOfBound(i - 1, j) && open[i - 2][j - 1]) {
+            boolean flag = rootConnectBottom[uf.find(getNodeValue(i - 1, j))];
             uf.union(getNodeValue(i - 1, j), getNodeValue(i, j));
-            isFullUF.union(getNodeValue(i - 1, j), getNodeValue(i, j));
+            if (flag) rootConnectBottom[uf.find(getNodeValue(i - 1, j))] = true;
         }
         if (!isOutOfBound(i + 1, j) && open[i][j - 1]) {
+            boolean flag = rootConnectBottom[uf.find(getNodeValue(i + 1, j))];
             uf.union(getNodeValue(i + 1, j), getNodeValue(i, j));
-            isFullUF.union(getNodeValue(i + 1, j), getNodeValue(i, j));
+            if (flag) rootConnectBottom[uf.find(getNodeValue(i + 1, j))] = true;
         }
         if (!isOutOfBound(i, j - 1) && open[i - 1][j - 2]) {
+            boolean flag = rootConnectBottom[uf.find(getNodeValue(i, j - 1))];
             uf.union(getNodeValue(i, j - 1), getNodeValue(i, j));
-            isFullUF.union(getNodeValue(i, j - 1), getNodeValue(i, j));
+            if (flag) rootConnectBottom[uf.find(getNodeValue(i, j - 1))] = true;
         }
         if (!isOutOfBound(i, j + 1) && open[i - 1][j]) {
+            boolean flag = rootConnectBottom[uf.find(getNodeValue(i, j + 1))];
             uf.union(getNodeValue(i, j + 1), getNodeValue(i, j));
-            isFullUF.union(getNodeValue(i, j + 1), getNodeValue(i, j));
+            if (flag) rootConnectBottom[uf.find(getNodeValue(i, j + 1))] = true;
         }
     }
     
@@ -68,13 +71,13 @@ public class Percolation {
      */
     public boolean isFull(int i, int j) {
         catchOutOfBoundException(i, j);
-        return isFullUF.connected(0, getNodeValue(i, j));
+        return uf.connected(0, getNodeValue(i, j));
     }
     /**
      * does the system percolate?
      */
     public boolean percolates() {
-        return uf.connected(0, nValue * nValue + 1);
+        return rootConnectBottom[uf.find(0)];
     }
     
     private boolean isOutOfBound(int i, int j) {
