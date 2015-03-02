@@ -54,4 +54,4 @@ public class Point implements Comparable<Point> {
        
         return (double) (that.y - this.y) / (that.x - this.x);
     }
-}
+}                  
