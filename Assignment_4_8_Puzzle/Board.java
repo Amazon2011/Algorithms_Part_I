@@ -73,14 +73,42 @@ public class Board {
      * a boadr that is obtained by exchanging two adjacent blocks in the same row
      */
     public Board twin() {
+        int[][] twinBlocks = new int[dimension()][dimension()];
         
+        for (int i = 0; i < dimension(); i++) {
+            for (int j = 0; j < dimension(); j++) {
+                twinBlocks[i][j] = blocks[i][j];
+            }
+        } 
+        
+        for (int i = 0; i < dimension(); i++) {
+            for (int j = 0; j < dimension() - 1; j++) {
+                if (twinBlocks[i][j] != 0 && twinBlocks[i][j + 1] != 0) {
+                    int tmp = twinBlocks[i][j];
+                    twinBlocks[i][j] = twinBlocks[i][j + 1];
+                    twinBlocks[i][j + 1] = tmp;
+                }
+            }
+        }
+        
+        return new Board(twinBlocks);
     }
     
     /**
      * does this board equal y?
      */
     public boolean equals(Object y) {
+        if (y == null) return false;
+        if (this == y) return true;
+        if (!(y instanceof Board)) return false;
+        Board yBoard = (Board) y;
+        for (int i = 0; i < dimension(); i++) {
+            for (int j = 0; j < dimension(); j++) {
+                if (this.blocks[i][j] != yBoard.blocks[i][j]) return false;
+            }
+        }
         
+        return true;
     }
     
     /**
