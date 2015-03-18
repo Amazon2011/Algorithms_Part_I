@@ -1,3 +1,7 @@
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
+
 public class Board {
     private int[][] blocks, goal;
     private int outOfPlaceBlockNumber, manhattan;
@@ -20,7 +24,7 @@ public class Board {
                 goal[i][j] = i * dimension() + j + 1;
             }
         }
-        goal[dimension()][dimension()] = 0;
+        goal[dimension() - 1][dimension() - 1] = 0;
     }
     
     private void calculateOutOfPlaceBlockNumber() {
@@ -94,6 +98,18 @@ public class Board {
         return new Board(twinBlocks);
     }
     
+    private int[][] cloneBlocks() {
+        int[][] cloneBlocks = new int[dimension()][dimension()];
+        
+        for (int i = 0; i < dimension(); i++) {
+            for (int j = 0; j < dimension(); j++) {
+                cloneBlocks[i][j] = blocks[i][j];
+            }
+        }
+        
+        return cloneBlocks;
+    }
+    
     /**
      * does this board equal y?
      */
@@ -115,20 +131,74 @@ public class Board {
      * all neighboring boards
      */
     public Iterable<Board> neighbors() {
+        List<Board> neighborList = new ArrayList<Board>(4);
         
+        for (int i = 0; i < dimension(); i++) {
+            for (int j = 0; j < dimension(); j++) {
+                if (blocks[i][j] == 0) {
+                    if (i - 1 >= 0) {
+                        int[][] neighbor = cloneBlocks();
+                        neighbor[i][j] = neighbor[i - 1][j];
+                        neighbor[i - 1][j] = 0;
+                        neighborList.add(new Board(neighbor));
+                    }
+                    if (i + 1 < dimension()) {
+                        int[][] neighbor = cloneBlocks();
+                        neighbor[i][j] = neighbor[i + 1][j];
+                        neighbor[i + 1][j] = 0;
+                        neighborList.add(new Board(neighbor));
+                    }
+                    if (j - 1 >= 0) {
+                        int[][] neighbor = cloneBlocks();
+                        neighbor[i][j] = neighbor[i][j - 1];
+                        neighbor[i][j - 1] = 0;
+                        neighborList.add(new Board(neighbor));
+                    }
+                    if (j + 1 < dimension()) {
+                        int[][] neighbor = cloneBlocks();
+                        neighbor[i][j] = neighbor[i][j + 1];
+                        neighbor[i][j + 1] = 0;
+                        neighborList.add(new Board(neighbor));
+                    }
+                }
+            }
+        }
+        
+        return (Iterable<Board>) neighborList;
     }
     
     /**
      * string representation of this board (in the output format specified below)
      */
     public String toString() {
+        String string = "";
         
+        for (int i = 0; i < dimension(); i++) {
+            for (int j = 0; j < dimension(); j++) {
+                string += blocks[i][j] + " ";
+            }
+            string += "\n";
+        }
+        
+        return string;
     }
 
     /**
      * unit tests (not graded)
      */
     public static void main(String[] args) {
+        int[][] myBlocks = {{1, 3, 2}, {0, 4, 5}, {8, 6, 7}};
+        Board board = new Board(myBlocks);
+        StdOut.println("dimension = " + board.dimension());
+        StdOut.println("toString = \n" + board);
+        StdOut.println("hamming = " + board.hamming());
+        StdOut.println("manhattan = " + board.manhattan());
+        StdOut.println("isGoal = " + board.isGoal());
+        StdOut.println("twin = \n" + board.twin());
         
+        Iterator<Board> neighbors = board.neighbors().iterator();
+        while (neighbors.hasNext()) {
+            StdOut.println(neighbors.next());
+        }
     }
 }
