@@ -2,9 +2,10 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Board {
+public class Board implements Comparable<Board>{
     private int[][] blocks, goal;
-    private int outOfPlaceBlockNumber, manhattan;
+    private int outOfPlaceBlockNumber, manhattan, moves, priority;
+    public Board previousBoard;
     
     /**
      * construct a board from an N-by-N array of blocks
@@ -15,6 +16,7 @@ public class Board {
         calculateGoal();
         calculateOutOfPlaceBlockNumber();
         calculateManhattanDistance();
+        priority = manhattan + moves;
     }
     
     private void calculateGoal() {
@@ -140,25 +142,41 @@ public class Board {
                         int[][] neighbor = cloneBlocks();
                         neighbor[i][j] = neighbor[i - 1][j];
                         neighbor[i - 1][j] = 0;
-                        neighborList.add(new Board(neighbor));
+                        Board neighborBoard = new Board(neighbor);
+                        neighborBoard.moves = moves + 1;
+                        neighborBoard.priority = neighborBoard.manhattan + neighborBoard.moves;
+                        neighborBoard.previousBoard = this;
+                        neighborList.add(neighborBoard);
                     }
                     if (i + 1 < dimension()) {
                         int[][] neighbor = cloneBlocks();
                         neighbor[i][j] = neighbor[i + 1][j];
                         neighbor[i + 1][j] = 0;
-                        neighborList.add(new Board(neighbor));
+                        Board neighborBoard = new Board(neighbor);
+                        neighborBoard.moves = moves + 1;
+                        neighborBoard.priority = neighborBoard.manhattan + neighborBoard.moves;
+                        neighborBoard.previousBoard = this;
+                        neighborList.add(neighborBoard);
                     }
                     if (j - 1 >= 0) {
                         int[][] neighbor = cloneBlocks();
                         neighbor[i][j] = neighbor[i][j - 1];
                         neighbor[i][j - 1] = 0;
-                        neighborList.add(new Board(neighbor));
+                        Board neighborBoard = new Board(neighbor);
+                        neighborBoard.moves = moves + 1;
+                        neighborBoard.priority = neighborBoard.manhattan + neighborBoard.moves;
+                        neighborBoard.previousBoard = this;
+                        neighborList.add(neighborBoard);
                     }
                     if (j + 1 < dimension()) {
                         int[][] neighbor = cloneBlocks();
                         neighbor[i][j] = neighbor[i][j + 1];
                         neighbor[i][j + 1] = 0;
-                        neighborList.add(new Board(neighbor));
+                        Board neighborBoard = new Board(neighbor);
+                        neighborBoard.moves = moves + 1;
+                        neighborBoard.priority = neighborBoard.manhattan + neighborBoard.moves;
+                        neighborBoard.previousBoard = this;
+                        neighborList.add(neighborBoard);
                     }
                 }
             }
@@ -181,6 +199,12 @@ public class Board {
         }
         
         return string;
+    }
+    
+    public int compareTo(Board board) {
+        if (this.priority > board.priority) return 1;
+        else if (this.priority < board.priority) return -1;
+        return 0;
     }
 
     /**
