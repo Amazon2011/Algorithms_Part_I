@@ -2,10 +2,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Board implements Comparable<Board>{
-    private int[][] blocks, goal;
-    private int outOfPlaceBlockNumber, manhattan, moves, priority;
-    public Board previousBoard;
+public class Board {
+    private int[][] blocks;
+    private int outOfPlaceBlockNumber, manhattan;
     
     /**
      * construct a board from an N-by-N array of blocks
@@ -13,26 +12,14 @@ public class Board implements Comparable<Board>{
      */
     public Board(int[][] blocks) {
         this.blocks = blocks;
-        calculateGoal();
         calculateOutOfPlaceBlockNumber();
         calculateManhattanDistance();
-        priority = manhattan + moves;
-    }
-    
-    private void calculateGoal() {
-        goal = new int[dimension()][dimension()];
-        for (int i = 0; i < dimension(); i++) {
-            for (int j = 0; j < dimension(); j++) {
-                goal[i][j] = i * dimension() + j + 1;
-            }
-        }
-        goal[dimension() - 1][dimension() - 1] = 0;
     }
     
     private void calculateOutOfPlaceBlockNumber() {
         for (int i = 0; i < dimension(); i++) {
             for (int j = 0; j < dimension(); j++) {
-                if (blocks[i][j] != goal[i][j]) outOfPlaceBlockNumber++;
+                if (blocks[i][j] != 0 && blocks[i][j] != i * dimension() + j + 1) outOfPlaceBlockNumber++;
             }
         }
     }
@@ -40,9 +27,11 @@ public class Board implements Comparable<Board>{
     private void calculateManhattanDistance() {
         for (int i = 0; i < dimension(); i++) {
             for (int j = 0; j < dimension(); j++) {
-                int x = (blocks[i][j] - 1) / dimension();
-                int y = blocks[i][j] - x * dimension() - 1;
-                manhattan += (Math.abs(x - i) + Math.abs(y - j));
+                if (blocks[i][j] != 0) {
+                    int x = (blocks[i][j] - 1) / dimension();
+                    int y = blocks[i][j] - x * dimension() - 1;
+                    manhattan += (Math.abs(x - i) + Math.abs(y - j));
+                }
             }
         }
     }
@@ -88,12 +77,11 @@ public class Board implements Comparable<Board>{
         } 
         
         for (int i = 0; i < dimension(); i++) {
-            for (int j = 0; j < dimension() - 1; j++) {
-                if (twinBlocks[i][j] != 0 && twinBlocks[i][j + 1] != 0) {
-                    int tmp = twinBlocks[i][j];
-                    twinBlocks[i][j] = twinBlocks[i][j + 1];
-                    twinBlocks[i][j + 1] = tmp;
-                }
+            if (twinBlocks[i][0] != 0 && twinBlocks[i][1] != 0) {
+                int tmp = twinBlocks[i][0];
+                twinBlocks[i][0] = twinBlocks[i][1];
+                twinBlocks[i][1] = tmp;
+                break;
             }
         }
         
@@ -120,6 +108,9 @@ public class Board implements Comparable<Board>{
         if (this == y) return true;
         if (!(y instanceof Board)) return false;
         Board yBoard = (Board) y;
+        
+        if (this.dimension() != yBoard.dimension()) return false;
+        
         for (int i = 0; i < dimension(); i++) {
             for (int j = 0; j < dimension(); j++) {
                 if (this.blocks[i][j] != yBoard.blocks[i][j]) return false;
@@ -142,41 +133,25 @@ public class Board implements Comparable<Board>{
                         int[][] neighbor = cloneBlocks();
                         neighbor[i][j] = neighbor[i - 1][j];
                         neighbor[i - 1][j] = 0;
-                        Board neighborBoard = new Board(neighbor);
-                        neighborBoard.moves = moves + 1;
-                        neighborBoard.priority = neighborBoard.manhattan + neighborBoard.moves;
-                        neighborBoard.previousBoard = this;
-                        neighborList.add(neighborBoard);
+                        neighborList.add(new Board(neighbor));
                     }
                     if (i + 1 < dimension()) {
                         int[][] neighbor = cloneBlocks();
                         neighbor[i][j] = neighbor[i + 1][j];
                         neighbor[i + 1][j] = 0;
-                        Board neighborBoard = new Board(neighbor);
-                        neighborBoard.moves = moves + 1;
-                        neighborBoard.priority = neighborBoard.manhattan + neighborBoard.moves;
-                        neighborBoard.previousBoard = this;
-                        neighborList.add(neighborBoard);
+                        neighborList.add(new Board(neighbor));
                     }
                     if (j - 1 >= 0) {
                         int[][] neighbor = cloneBlocks();
                         neighbor[i][j] = neighbor[i][j - 1];
                         neighbor[i][j - 1] = 0;
-                        Board neighborBoard = new Board(neighbor);
-                        neighborBoard.moves = moves + 1;
-                        neighborBoard.priority = neighborBoard.manhattan + neighborBoard.moves;
-                        neighborBoard.previousBoard = this;
-                        neighborList.add(neighborBoard);
+                        neighborList.add(new Board(neighbor));
                     }
                     if (j + 1 < dimension()) {
                         int[][] neighbor = cloneBlocks();
                         neighbor[i][j] = neighbor[i][j + 1];
                         neighbor[i][j + 1] = 0;
-                        Board neighborBoard = new Board(neighbor);
-                        neighborBoard.moves = moves + 1;
-                        neighborBoard.priority = neighborBoard.manhattan + neighborBoard.moves;
-                        neighborBoard.previousBoard = this;
-                        neighborList.add(neighborBoard);
+                        neighborList.add(new Board(neighbor));
                     }
                 }
             }
@@ -189,29 +164,23 @@ public class Board implements Comparable<Board>{
      * string representation of this board (in the output format specified below)
      */
     public String toString() {
-        String string = "";
+        String string = dimension() + "\n";
         
         for (int i = 0; i < dimension(); i++) {
             for (int j = 0; j < dimension(); j++) {
-                string += blocks[i][j] + " ";
+                string += " " + blocks[i][j];
             }
             string += "\n";
         }
         
         return string;
     }
-    
-    public int compareTo(Board board) {
-        if (this.priority > board.priority) return 1;
-        else if (this.priority < board.priority) return -1;
-        return 0;
-    }
 
     /**
      * unit tests (not graded)
      */
     public static void main(String[] args) {
-        int[][] myBlocks = {{1, 3, 2}, {0, 4, 5}, {8, 6, 7}};
+        int[][] myBlocks = {{0, 1, 3}, {4, 2, 5}, {7, 8, 6}};
         Board board = new Board(myBlocks);
         StdOut.println("dimension = " + board.dimension());
         StdOut.println("toString = \n" + board);
