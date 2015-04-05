@@ -47,7 +47,7 @@ public class PointSET {
      * draw all points to standard draw
      */
     public void draw() {
-        Iterator iterator = set.iterator();
+        Iterator<Point2D> iterator = set.iterator();
         while (iterator.hasNext()) iterator.next().draw();
     }
     
@@ -58,10 +58,10 @@ public class PointSET {
         if (rect ==  null) throw new NullPointerException("Argument cannot be null!");
         
         List<Point2D> pointsInRange = new ArrayList<Point2D>();
-        Iterator iterator = set.iterator();
+        Iterator<Point2D> iterator = set.iterator();
         while (iterator.hasNext()) {
             Point2D point = iterator.next();
-            if (rect.contains(point)) pointsInRange.add(p);
+            if (rect.contains(point)) pointsInRange.add(point);
         }
         
         return (Iterable<Point2D>) pointsInRange;
@@ -74,7 +74,7 @@ public class PointSET {
         if (p ==  null) throw new NullPointerException("Argument cannot be null!");
         if (isEmpty()) return null;
         
-        Iterator iterator = set.iterator();
+        Iterator<Point2D> iterator = set.iterator();
         Point2D nearestPoint = iterator.next();
         
         while (iterator.hasNext()) {
@@ -89,6 +89,13 @@ public class PointSET {
      * unit testing of the methods (optional) 
      */
     public static void main(String[] args0) {
+        PointSET ps = new PointSET();
         
+        ps.insert(new Point2D(0.5, 0.5));
+        ps.insert(new Point2D(0.2, 0.3));
+        ps.insert(new Point2D(0.8, 0.6));
+        ps.insert(new Point2D(0.4, 0.1));
+        
+        ps.draw();
     }
 }
